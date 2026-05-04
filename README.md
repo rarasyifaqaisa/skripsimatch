@@ -123,7 +123,7 @@ Judul *"Deteksi Hoaks Menggunakan Machine Learning"* dan *"Klasifikasi Berita Pa
 
 **Clone repository**
 ```bash
-git clone https://github.com/USERNAME/skripsimatch.git
+git clone https://github.com/rarasyifaqaisa/skripsimatch.git
 cd skripsimatch
 ```
 
@@ -212,7 +212,7 @@ Membangun SkripsiMatch mengajarkan saya bahwa:
 
 ## 👩‍💻 Author
 
-**Rarasyifaqaisa**
+**Rara Syifa Qaisa**
 - GitHub: [@rarasyifaqaisa](https://github.com/rarasyifaqaisa)
 
 ---
