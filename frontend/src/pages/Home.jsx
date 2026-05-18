@@ -1,6 +1,9 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { analyzeTitle } from '../api/analyze'
+import axios from 'axios'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000'
 
 const PRODI_LIST = [
   'Teknik Informatika',
@@ -14,7 +17,22 @@ export default function Home() {
   const [form, setForm] = useState({ name: '', prodi: '', title: '' })
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
+  const [warming, setWarming] = useState(true)  // status wake up
   const navigate = useNavigate()
+
+  // Ping backend saat halaman pertama dibuka
+  useEffect(() => {
+    async function wakeUpBackend() {
+      try {
+        await axios.get(`${API_URL}/health`, { timeout: 60000 })
+      } catch {
+        // Diam saja kalau gagal, tidak perlu error
+      } finally {
+        setWarming(false)
+      }
+    }
+    wakeUpBackend()
+  }, [])
 
   function handleChange(e) {
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }))
@@ -38,7 +56,7 @@ export default function Home() {
         }
       })
     } catch {
-      setError('Gagal menghubungi server. Pastikan backend aktif.')
+      setError('Gagal menghubungi server. Coba beberapa saat lagi.')
     } finally {
       setLoading(false)
     }
@@ -58,9 +76,28 @@ export default function Home() {
           </p>
         </div>
 
+        {/* Banner warming up */}
+        {warming && (
+          <div className="mb-4 flex items-center gap-3 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3">
+            <div className="h-2 w-2 flex-shrink-0 animate-pulse rounded-full bg-amber-400" />
+            <p className="text-xs text-amber-700">
+              Mempersiapkan sistem AI... Ini hanya terjadi sekali saat pertama dibuka.
+            </p>
+          </div>
+        )}
+
+        {/* Banner siap */}
+        {!warming && (
+          <div className="mb-4 flex items-center gap-3 rounded-xl border border-emerald-200 bg-emerald-50 px-4 py-3">
+            <div className="h-2 w-2 flex-shrink-0 rounded-full bg-emerald-400" />
+            <p className="text-xs text-emerald-700">
+              Sistem siap digunakan.
+            </p>
+          </div>
+        )}
+
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm space-y-4">
 
-          {/* Nama Mahasiswa */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Nama Mahasiswa
@@ -75,7 +112,6 @@ export default function Home() {
             />
           </div>
 
-          {/* Program Studi */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Program Studi
@@ -93,7 +129,6 @@ export default function Home() {
             </select>
           </div>
 
-          {/* Judul Skripsi */}
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
               Judul Skripsi
@@ -113,11 +148,12 @@ export default function Home() {
 
           <button
             onClick={handleSubmit}
-            disabled={loading}
+            disabled={loading || warming}
             className="w-full rounded-xl bg-indigo-600 py-3 text-sm font-medium text-white transition hover:bg-indigo-700 active:scale-95 disabled:opacity-50"
           >
-            {loading ? 'Menganalisis...' : 'Analisis Judul →'}
+            {loading ? 'Menganalisis...' : warming ? 'Menunggu sistem siap...' : 'Analisis Judul →'}
           </button>
+
         </div>
 
         <p className="mt-4 text-center text-xs text-gray-300">
